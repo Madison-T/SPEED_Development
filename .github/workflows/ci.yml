@@ -1,20 +1,56 @@
-name: CI
+name: CI_action
 
 on:
   push:
-    branches: [ Development ]
+    branches: [main]
   pull_request:
-    branches: [ Development ]
+    branches: [main]
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
+    strategy:
+      matrix:
+        node-version: [14.x]
+
     steps:
-      - uses: actions/checkout@v2
-      - name: Set up Node.js
-        uses: actions/setup-node@v2
-        with:
-          node-version: '14'
-      - run: npm install
-      - run: npm run test
+    # Step 1: Checkout the repository
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    # Step 2: Set up Node.js environment
+    - name: Set up Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+
+    # Step 3: Install backend dependencies
+    - name: Install backend dependencies
+      run: npm install
+      working-directory: ./backend
+
+    # Step 4: Run backend tests
+    - name: Run backend tests
+      run: npm run test
+      working-directory: ./backend
+
+    # Step 5: Build backend (if needed, or you can remove this step if it's only API-based)
+    - name: Build backend
+      run: npm run build
+      working-directory: ./backend
+
+    # Step 6: Install frontend dependencies
+    - name: Install frontend dependencies
+      run: npm install
+      working-directory: ./frontend
+
+    # Step 7: Run frontend tests
+    - name: Run frontend tests
+      run: npm run test
+      working-directory: ./frontend
+
+    # Step 8: Build frontend
+    - name: Build frontend
+      run: npm run build
+      working-directory: ./frontend
